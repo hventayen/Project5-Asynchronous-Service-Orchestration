@@ -1,7 +1,7 @@
 # Project5-Asynchronous-Service-Orchestration
 ## Joseph Nasr
 ## Harrold Ventayen
-## Usman
+## Mohammad Qazi
 ## Kevin Sierras
 ### Databases (Executables located in DB/):
 Initialize database: execute create_stats_db.sh in the terminal
