@@ -9,6 +9,7 @@ Create shards: execute create_shards.py in the terminal
 ### Starting services:
 #### Standalone:
 uvicorn m1:app --reload
+
 uvicorn m2:app --reload
 uvicorn m3:app --reload
 uvicorn m4:app --reload
