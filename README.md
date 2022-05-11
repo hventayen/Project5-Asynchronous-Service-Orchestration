@@ -11,7 +11,9 @@ Create shards: execute create_shards.py in the terminal
 uvicorn m1:app --reload
 
 uvicorn m2:app --reload
+
 uvicorn m3:app --reload
+
 uvicorn m4:app --reload
 #### Using Traefik:
 ./traefik --configFile=traefik.toml
