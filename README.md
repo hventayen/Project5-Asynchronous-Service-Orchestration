@@ -1,8 +1,8 @@
-# Project4-NoSQL
+# Project5-Asynchronous-Service-Orchestration
 ## Joseph Nasr
 ## Harrold Ventayen
-## Samuel Valls
-## Kevin Garcia
+## Usman
+## Kevin Sierras
 ### Databases (Executables located in DB/):
 Initialize database: execute create_stats_db.sh in the terminal
 Create shards: execute create_shards.py in the terminal
