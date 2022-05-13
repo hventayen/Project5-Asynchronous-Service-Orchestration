@@ -1,6 +1,4 @@
 #! /usr/bin/env python3
-import sqlite3
-import redis
 import httpx
 from fastapi import FastAPI, Depends, HTTPException, status
 from pydantic import BaseModel, Field
@@ -16,9 +14,12 @@ def get_db():
 app = FastAPI()
 
 @app.post('/game/new')
-async def start_new_game(game_id: int, user_id: int):
+async def start_new_game(username: str, game_id: int):
     # TODO:
         # Parameters may need to be editted
+        # Plan of action:
+            # Find the user_id for the specified username
+                #
     pass
 
 
@@ -26,4 +27,5 @@ async def start_new_game(game_id: int, user_id: int):
 async def guess_a_word(game_id: int, user_id: int):
     # TODO:
         # Parameters may need to be editted
+        #
     pass

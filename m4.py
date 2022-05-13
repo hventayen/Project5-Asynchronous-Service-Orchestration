@@ -22,6 +22,7 @@ app = FastAPI()
 
 @app.post('/game/{game_id}')
 async def new_game(game_id: int, user_id: int):
+    # Example Link: {http://127.0.0.1:8000}/game/{1}?{user_id=1}
     r = redis.Redis(host='localhost', port=6379, db=0)
     if r.exists(f"{user_id} : {game_id} : guess_list"):
         raise HTTPException(
@@ -39,6 +40,7 @@ async def new_game(game_id: int, user_id: int):
 
 @app.patch('/game/{game_id}')
 async def update_game(game_id: int, user_id: int, user_word: str):
+    # {http://127.0.0.1:8000}/game/{1}?{user_id=10}
     r = redis.Redis(host='localhost', port=6379, db=0)
 
     if not r.exists(f"{user_id} : {game_id} : guess_list"):
@@ -68,6 +70,7 @@ async def update_game(game_id: int, user_id: int, user_word: str):
 
 @app.get('/game/{game_id}')
 async def grab_game(game_id: int, user_id: int):
+    # {http://127.0.0.1:8000}/game/{1}?{user_id=10}&{user_word=apple}
     r = redis.Redis(host='localhost', port=6379, db=0)
     guesses_left = int((r.get(f"{user_id} : {game_id} : guesses_left").decode("UTF-8")))
     guess_list = r.lrange(f"{user_id} : {game_id} : guess_list", 0, 6 - guesses_left - 1)
