@@ -24,6 +24,8 @@ app = FastAPI()
 
 @app.get("/games/{answer_id}")
 async def check_guess(answer_id: int, guess: str, db: sqlite3.Connection = Depends(get_db)):
+    # {http://127.0.0.1:8000}/games/l?guess=apple
+
     """Checks to see if a guess is correct, if not return color values of each letter"""
     cur = db.execute("SELECT game_answers FROM games WHERE answer_id = ?", [answer_id])
     looking_for = cur.fetchall()
@@ -48,6 +50,8 @@ async def check_guess(answer_id: int, guess: str, db: sqlite3.Connection = Depen
 
 @app.put("/games/")
 async def change_daily_word(game: Game, db: sqlite3.Connection = Depends(get_db)):
+    # {http://127.0.0.1:8000}/games/
+    
     """Change the word of a given game"""
     cur = db.execute("SELECT answer_id FROM games WHERE answer_id = ?", [game.game_id])
     looking_for = cur.fetchall()
