@@ -6,9 +6,6 @@ import uuid
 import random
 from datetime import datetime
 
-now = datetime.now()
-with open('/home/student/Desktop/Project4-NOSQL/logs.txt', 'a') as f:
-   f.write('{}\n'.format(now))
 
 def make_top_10s(view_dec):
     sqlite3.register_converter('GUID', lambda b: uuid.UUID(bytes_le=b))
