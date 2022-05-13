@@ -2,13 +2,13 @@
 import sqlite3
 import redis
 import uuid
-# Testing Cron
-# import random
-# from datetime import datetime
 
-# now = datetime.now()
-# with open('/home/student/Desktop/Project4-NOSQL/logs.txt', 'a') as f:
-#    f.write('{}\n'.format(now))
+import random
+from datetime import datetime
+
+now = datetime.now()
+with open('/home/student/Desktop/Project4-NOSQL/logs.txt', 'a') as f:
+   f.write('{}\n'.format(now))
 
 def make_top_10s(view_dec):
     sqlite3.register_converter('GUID', lambda b: uuid.UUID(bytes_le=b))
@@ -44,9 +44,6 @@ def make_top_10s(view_dec):
     p.execute()
     con.close()
     r.close()
-    
+
 make_top_10s("wins")
 make_top_10s("streaks")
-
-
-
