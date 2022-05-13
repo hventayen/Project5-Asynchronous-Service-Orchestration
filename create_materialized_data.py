@@ -10,11 +10,11 @@ from datetime import datetime
 def make_top_10s(view_dec):
     sqlite3.register_converter('GUID', lambda b: uuid.UUID(bytes_le=b))
     sqlite3.register_adapter(uuid.UUID, lambda u: memoryview(u.bytes_le))
-    con = sqlite3.connect("/home/student/Desktop/Project4-NOSQL/DB/Shards/stats1.db", detect_types=sqlite3.PARSE_DECLTYPES)
+    con = sqlite3.connect("DB/Shards/stats1.db", detect_types=sqlite3.PARSE_DECLTYPES)
     db = con.cursor()
-    db.execute("ATTACH DATABASE '/home/student/Desktop/Project4-NOSQL/DB/Shards/user_profiles.db' As 'up'")
-    db.execute("ATTACH DATABASE '/home/student/Desktop/Project4-NOSQL/DB/Shards/stats2.db' As 's2'")
-    db.execute("ATTACH DATABASE '/home/student/Desktop/Project4-NOSQL/DB/Shards/stats3.db' AS 's3'")
+    db.execute("ATTACH DATABASE 'DB/Shards/user_profiles.db' As 'up'")
+    db.execute("ATTACH DATABASE 'DB/Shards/stats2.db' As 's2'")
+    db.execute("ATTACH DATABASE 'DB/Shards/stats3.db' AS 's3'")
     if view_dec == "wins":
         column = "number_won"
     else:
