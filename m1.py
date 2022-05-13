@@ -54,7 +54,7 @@ async def add_guess(letters: str, db: sqlite3.Connection = Depends(get_db)):
 @app.delete("/words/{letters}")
 async def delete_guess(letters: str, db: sqlite3.Connection = Depends(get_db)):
     # {http://127.0.0.1:8000}/words/kevin
-    
+
     """Delete possible guess from word list"""
     cur = db.execute("SELECT word FROM words WHERE word = ?", [letters])
     looking_for = cur.fetchall()

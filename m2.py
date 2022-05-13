@@ -24,7 +24,7 @@ app = FastAPI()
 
 @app.get("/games/{answer_id}")
 async def check_guess(answer_id: int, guess: str, db: sqlite3.Connection = Depends(get_db)):
-    # {http://127.0.0.1:8000}/games/l?guess=apple
+    # {http://127.0.0.1:8000}/games/{1}?{guess=apple}
 
     """Checks to see if a guess is correct, if not return color values of each letter"""
     cur = db.execute("SELECT game_answers FROM games WHERE answer_id = ?", [answer_id])
@@ -35,7 +35,7 @@ async def check_guess(answer_id: int, guess: str, db: sqlite3.Connection = Depen
         )
     wordle_of_day = looking_for[0][0]
     if guess == wordle_of_day:
-        return {"detail": "Guess is correct!"}
+        return {"detail": "Guess is correct!", "status" : True}
     color_list = []
     for index, letter in enumerate(guess):
         color = "Gray"
@@ -45,13 +45,14 @@ async def check_guess(answer_id: int, guess: str, db: sqlite3.Connection = Depen
             if letter in wordle_of_day:
                 color = "Yellow"
         color_list.append(color)
-    return {"letter colors" : [f"{letter}: {color_list[index]}" for index, letter in enumerate(guess)]}
+    """Added a status variable to keep track of win or loss"""
+    return {"letter colors" : [f"{letter}: {color_list[index]}" for index, letter in enumerate(guess)], , "status" : False}
 
 
 @app.put("/games/")
 async def change_daily_word(game: Game, db: sqlite3.Connection = Depends(get_db)):
     # {http://127.0.0.1:8000}/games/
-    
+
     """Change the word of a given game"""
     cur = db.execute("SELECT answer_id FROM games WHERE answer_id = ?", [game.game_id])
     looking_for = cur.fetchall()
