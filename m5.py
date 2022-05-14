@@ -23,7 +23,7 @@ async def start_new_game(username: str):
 
 
         # ret = httpx_fucntion_call(link)
-    ret = httpx.post('http://127.0.0.1:5300/game/billythomas')
+    ret = httpx.post(f'http://127.0.0.1:5300/game/{username}')
     return ret.json()
 
 
