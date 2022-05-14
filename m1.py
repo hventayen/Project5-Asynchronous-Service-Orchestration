@@ -19,7 +19,7 @@ app = FastAPI()
 
 @app.get("/words/{letters}")
 async def valid_word(letters: str, db: sqlite3.Connection = Depends(get_db)):
-    # {http://127.0.0.1:8000}/words/apple
+    # http://127.0.0.1:5000/words/apple
 
     """Check for valid word in word list"""
     cur = db.execute("SELECT word FROM words WHERE word = ?", [letters])
@@ -33,7 +33,7 @@ async def valid_word(letters: str, db: sqlite3.Connection = Depends(get_db)):
 
 @app.post("/words/{letters}")
 async def add_guess(letters: str, db: sqlite3.Connection = Depends(get_db)):
-    # {http://127.0.0.1:8000}/words/apple
+    # http://127.0.0.1:5000/words/apple
 
     """Add possible guess to word list"""
     cur = db.execute("SELECT word FROM words WHERE word = ?", [letters])
@@ -53,7 +53,7 @@ async def add_guess(letters: str, db: sqlite3.Connection = Depends(get_db)):
 
 @app.delete("/words/{letters}")
 async def delete_guess(letters: str, db: sqlite3.Connection = Depends(get_db)):
-    # {http://127.0.0.1:8000}/words/kevin
+    # http://127.0.0.1:5000/words/kevin
 
     """Delete possible guess from word list"""
     cur = db.execute("SELECT word FROM words WHERE word = ?", [letters])

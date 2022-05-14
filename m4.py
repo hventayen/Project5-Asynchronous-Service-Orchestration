@@ -3,8 +3,8 @@ import sqlite3
 import redis
 from fastapi import FastAPI, Depends, HTTPException, status
 from pydantic import BaseModel, Field
-
-
+from random import randint
+import uuid
 def get_db():
     """Connect words.db"""
     with contextlib.closing(sqlite3.connect("DB/stats.db", check_same_thread=False)) as db:
@@ -20,27 +20,42 @@ class Result(BaseModel):
 
 app = FastAPI()
 
-@app.post('/game/{game_id}')
-async def new_game(game_id: int, user_id: int):
-    # Example Link: {http://127.0.0.1:8000}/game/{1}?{user_id=1}
+@app.post('/game/{username}')
+async def new_game(username: str):
+    # Example Link: http://127.0.0.1:5300/game/{1}?{user_id=1}
+    """Changing parameters to only accept a username; added a connection to
+    user_profiles shard, to get the uuid assocaited to username, also generate
+    a new game id based on game ids inside of answers.db"""
     r = redis.Redis(host='localhost', port=6379, db=0)
-    if r.exists(f"{user_id} : {game_id} : guess_list"):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Game already played"
-        )
+    sqlite3.register_converter('GUID', lambda b: uuid.UUID(bytes_le=b))
+    sqlite3.register_adapter(uuid.UUID, lambda u: memoryview(u.bytes_le))
+    connection = sqlite3.connect("DB/Shards/user_profiles.db", detect_types=sqlite3.PARSE_DECLTYPES)
+    cursor = connection.cursor()
+    cursor.execute("SELECT unique_id FROM users where username = ?", [username])
+    user_id = cursor.fetchall()[0][0]
+    con2 = sqlite3.connect("DB/answers.db")
+    cur2 = con2.cursor()
+    cur2.execute("SELECT MIN(answer_id), MAX(answer_id) FROM games")
+    looking_for = cur2.fetchall()
+    min_id = looking_for[0][0]
+    max_id = looking_for[0][1]
+    game_id = randint(min_id, max_id)
+    while r.exists(f"{user_id} : {game_id} : guess_list"):
+        game_id = randint(min_id, max_id)
+
     r.lpush(f"{user_id} : {game_id} : guess_list", "", "", "", "", "", "")
     r.set(f"{user_id} : {game_id} : guesses_left", 6)
 
     player_game = {
+        "status": "new",
         "game_id": game_id,
-        "user_id": user_id,
-        "detail": "Game Created"
+        "user_id": user_id
         }
     return player_game
 
 @app.patch('/game/{game_id}')
 async def update_game(game_id: int, user_id: int, user_word: str):
-    # {http://127.0.0.1:8000}/game/{1}?{user_id=10}
+    # http://127.0.0.1:5300/game/{1}?{user_id=10}
     r = redis.Redis(host='localhost', port=6379, db=0)
 
     if not r.exists(f"{user_id} : {game_id} : guess_list"):
@@ -70,7 +85,7 @@ async def update_game(game_id: int, user_id: int, user_word: str):
 
 @app.get('/game/{game_id}')
 async def grab_game(game_id: int, user_id: int):
-    # {http://127.0.0.1:8000}/game/{1}?{user_id=10}&{user_word=apple}
+    # http://127.0.0.1:5300/game/{1}?{user_id=10}&{user_word=apple}
     r = redis.Redis(host='localhost', port=6379, db=0)
     guesses_left = int((r.get(f"{user_id} : {game_id} : guesses_left").decode("UTF-8")))
     guess_list = r.lrange(f"{user_id} : {game_id} : guess_list", 0, 6 - guesses_left - 1)

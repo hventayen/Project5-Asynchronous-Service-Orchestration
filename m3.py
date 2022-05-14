@@ -50,7 +50,7 @@ app = FastAPI()
 @app.post("/stats/games/{game_id}")
 async def add_game_played(game_id: int, unique_id: uuid.UUID, result: Result):
     """Posting a win or loss"""
-    # {http://127.0.0.1:8000}/stats/games/{1}?{unique_id=fce3d5c3-c3da-4693-b76d-3b883c8da273}
+    # http://127.0.0.1:5200/stats/games/{1}?{unique_id=fce3d5c3-c3da-4693-b76d-3b883c8da273}
     # post into games
     sqlite3.register_converter('GUID', lambda b: uuid.UUID(bytes_le=b))
     sqlite3.register_adapter(uuid.UUID, lambda u: memoryview(u.bytes_le))
@@ -87,7 +87,7 @@ async def add_game_played(game_id: int, unique_id: uuid.UUID, result: Result):
 @app.get("/stats/games/{unique_id}/")
 async def retrieve_player_stats(unique_id: uuid.UUID):
     """Getting stats of a user"""
-    # {http://127.0.0.1:8000}/stats/games/{fce3d5c3-c3da-4693-b76d-3b883c8da273}/
+    # http://127.0.0.1:5200/stats/games/{fce3d5c3-c3da-4693-b76d-3b883c8da273}/
     # use table: games
     sqlite3.register_converter('GUID', lambda b: uuid.UUID(bytes_le=b))
     sqlite3.register_adapter(uuid.UUID, lambda u: memoryview(u.bytes_le))
@@ -154,7 +154,7 @@ async def retrieve_player_stats(unique_id: uuid.UUID):
 @app.get("/stats/wins/")
 async def retrieve_top_wins():
     """Getting the top 10 users by number of wins"""
-    # http://127.0.0.1:8000/stats/wins/
+    # http://127.0.0.1:5200/stats/wins/
     # use view: wins
     # Get number of wins
     r = redis.Redis(host='localhost', port=6379, db=0)
@@ -166,7 +166,7 @@ async def retrieve_top_wins():
 @app.get("/stats/streaks/")
 async def retrieve_top_streaks(db: sqlite3.Connection = Depends(get_db)):
     """Getting the top 10 users by streak"""
-    # http://127.0.0.1:8000/stats/streaks/
+    # http://127.0.0.1:5200/stats/streaks/
     # use view: streaks
     r = redis.Redis(host='localhost', port=6379, db=0)
     set_key = f"Top 10 streaks"
