@@ -51,10 +51,11 @@ async def new_game(username: str):
         "game_id": game_id,
         "user_id": user_id
         }
+    r.close()
     return player_game
 
 @app.patch('/game/{game_id}')
-async def update_game(game_id: int, user_id: int, user_word: str):
+async def update_game(game_id: int, user_id: uuid.UUID, user_word: str):
     # http://127.0.0.1:5300/game/{1}?{user_id=10}
     r = redis.Redis(host='localhost', port=6379, db=0)
 
@@ -81,6 +82,7 @@ async def update_game(game_id: int, user_id: int, user_word: str):
         "guess_list": guess_list,
         "guesses_left": list_count
     }
+    r.close()
     return player_game
 
 @app.get('/game/{game_id}')
@@ -96,4 +98,5 @@ async def grab_game(game_id: int, user_id: int):
         "guess_list": guess_list,
         "guesses_left": guesses_left
     }
+    r.close()
     return player_game

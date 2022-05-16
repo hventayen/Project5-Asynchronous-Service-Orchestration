@@ -20,8 +20,6 @@ async def start_new_game(username: str):
             # Create the actual game:
                 # Microservice 4(5300): @app.post('/game/{game_id}')
                     ## user_id needs to be changed to recieve a uuid
-
-
         # ret = httpx_fucntion_call(link)
     ret = httpx.post(f'http://127.0.0.1:5300/game/{username}')
     return ret.json()
@@ -29,7 +27,7 @@ async def start_new_game(username: str):
 
 
 @app.post('/game/{game_id}')
-async def guess_a_word(game_id: int, user_id: int, guess: str):
+async def guess_a_word(game_id: int, user_id: uuid.UUID, guess: str):
     # TODO:
         # Parameters may need to be editted
         # Verify the guess is a word in dictionary
