@@ -2,7 +2,7 @@
 import httpx
 from fastapi import FastAPI, Depends, HTTPException, status
 from pydantic import BaseModel, Field
-
+import uuid
 
 
 
@@ -32,11 +32,14 @@ async def guess_a_word(game_id: int, user_id: uuid.UUID, guess: str):
         # Parameters may need to be editted
         # Verify the guess is a word in dictionary
             # Microservice 1(5000): @app.get("/words/{letters}")
+    #ret = httpx.get(f'http://127.0.0.1:5000/words/{guess}')
         # Check if user has guess remaining:
             # In Microservice 4 an exception is thrown if a guess is made when
             # max has been reached. The endpoint is: @app.patch('/game/{game_id}')
         # Record the guess and update the number of guesses remaining
             # Microservice 4: @app.patch('/game/{game_id}')
+    #ret = httpx.patch(f'http://127.0.0.1:5300/game/{game_id}?user_id={user_id}&user_word={guess}')
+
         # Check to see if the guess is correct
             # Microservice 2(5100): @app.get("/games/{answer_id}")
                 # If return[status]: Its a win
@@ -45,5 +48,6 @@ async def guess_a_word(game_id: int, user_id: uuid.UUID, guess: str):
             #  Microservice 3: @app.post("/stats/games/{game_id}")
         # Return score
             # Microservice 3: @app.get("/stats/games/{unique_id}/")
+    #ret = httpx.get(f'http://127.0.0.1:5000/words/{user_id}')
 
-    pass
+    return ret.json()
