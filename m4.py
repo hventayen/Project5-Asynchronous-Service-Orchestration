@@ -54,7 +54,7 @@ async def new_game(username: str):
     return player_game
 
 @app.patch('/game/{game_id}')
-async def update_game(game_id: int, user_id: int, user_word: str):
+async def update_game(game_id: int, user_id: uuid.UUID, user_word: str):
     # http://127.0.0.1:5300/game/{1}?{user_id=10}
     r = redis.Redis(host='localhost', port=6379, db=0)
 
@@ -84,7 +84,7 @@ async def update_game(game_id: int, user_id: int, user_word: str):
     return player_game
 
 @app.get('/game/{game_id}')
-async def grab_game(game_id: int, user_id: int):
+async def grab_game(game_id: int, user_id: uuid.UUID):
     # http://127.0.0.1:5300/game/{1}?{user_id=10}&{user_word=apple}
     r = redis.Redis(host='localhost', port=6379, db=0)
     guesses_left = int((r.get(f"{user_id} : {game_id} : guesses_left").decode("UTF-8")))
