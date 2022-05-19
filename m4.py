@@ -20,36 +20,24 @@ class Result(BaseModel):
 
 app = FastAPI()
 
-@app.post('/game/{username}')
-async def new_game(username: str):
+@app.post('/game/{game_id}')
+async def new_game(game_id: int, user_id: uuid.UUID):
     # Example Link: http://127.0.0.1:5300/game/{1}?{user_id=1}
-    """Changing parameters to only accept a username; added a connection to
-    user_profiles shard, to get the uuid assocaited to username, also generate
-    a new game id based on game ids inside of answers.db"""
+    """Stores a new game"""
+    """Changed user_id from int to uuid"""
     r = redis.Redis(host='localhost', port=6379, db=0)
-    sqlite3.register_converter('GUID', lambda b: uuid.UUID(bytes_le=b))
-    sqlite3.register_adapter(uuid.UUID, lambda u: memoryview(u.bytes_le))
-    connection = sqlite3.connect("DB/Shards/user_profiles.db", detect_types=sqlite3.PARSE_DECLTYPES)
-    cursor = connection.cursor()
-    cursor.execute("SELECT unique_id FROM users where username = ?", [username])
-    user_id = cursor.fetchall()[0][0]
-    con2 = sqlite3.connect("DB/answers.db")
-    cur2 = con2.cursor()
-    cur2.execute("SELECT MIN(answer_id), MAX(answer_id) FROM games")
-    looking_for = cur2.fetchall()
-    min_id = looking_for[0][0]
-    max_id = looking_for[0][1]
-    game_id = randint(min_id, max_id)
-    while r.exists(f"{user_id} : {game_id} : guess_list"):
-        game_id = randint(min_id, max_id)
-
+    if r.exists(f"{user_id} : {game_id} : guess_list"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Game already played"
+        )
+    """REturn in progress instead of throwing an error"""
     r.lpush(f"{user_id} : {game_id} : guess_list", "", "", "", "", "", "")
     r.set(f"{user_id} : {game_id} : guesses_left", 6)
 
     player_game = {
         "status": "new",
         "game_id": game_id,
-        "user_id": user_id
+        "user_id": user_id,
         }
     r.close()
     return player_game

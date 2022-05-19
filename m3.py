@@ -10,6 +10,7 @@ from datetime import date
 from math import trunc
 import uuid
 import redis
+from random import randint
 
 class Guesses(BaseModel):
         guess1: int = Field(0, alias='1')
@@ -83,6 +84,61 @@ async def add_game_played(game_id: int, unique_id: uuid.UUID, result: Result):
     con.commit()
     db.close()
     return result
+
+@app.get("/stats/games/{username}")
+async def generate_game(username: str):
+    """Initializes values for a new game"""
+    # Was added in order to get the user name and generate a game_id
+    sqlite3.register_converter('GUID', lambda b: uuid.UUID(bytes_le=b))
+    sqlite3.register_adapter(uuid.UUID, lambda u: memoryview(u.bytes_le))
+    con = sqlite3.connect("DB/Shards/user_profiles.db", detect_types=sqlite3.PARSE_DECLTYPES)
+    db = con.cursor()
+    cur = db.execute("SELECT unique_id FROM users where username = ?", [username])
+    looking_for = cur.fetchall()
+    if not looking_for:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+    user_id = looking_for[0][0]
+    con.close()
+
+    con2 = sqlite3.connect("DB/answers.db", detect_types=sqlite3.PARSE_DECLTYPES)
+    db2 = con2.cursor()
+    cur2 = db2.execute("SELECT MIN(answer_id), MAX(answer_id) FROM games")
+    #gets the min and max game_id - in answers.db they are refered to as answer_id
+    looking_for = cur2.fetchall()
+    min_id = looking_for[0][0]
+    max_id = looking_for[0][1]
+    game_id = randint(min_id, max_id)
+    # generate a random game_id/answer_id
+    con2.close()
+    if (int(user_id) % 3 == 0):
+        con = sqlite3.connect("DB/Shards/stats1.db", detect_types=sqlite3.PARSE_DECLTYPES)
+        db = con.cursor()
+    elif (int(user_id) % 3 == 1):
+        con = sqlite3.connect("DB/Shards/stats2.db", detect_types=sqlite3.PARSE_DECLTYPES)
+        db = con.cursor()
+    else:
+        con = sqlite3.connect("DB/Shards/stats3.db", detect_types=sqlite3.PARSE_DECLTYPES)
+        db = con.cursor()
+    cur = db.execute("SELECT game_id, unique_id FROM games WHERE game_id = ? AND unique_id = ?", [game_id, user_id])
+    looking_for = cur.fetchall()
+    while looking_for:
+        game_id = randint(min_id, max_id)
+        cur = db.execute("SELECT game_id, unique_id FROM games WHERE game_id = ? AND unique_id = ?", [game_id, user_id])
+        looking_for = cur.fetchall()
+    """You'll need to know SQL for this
+    TODO: This while loop, checks to see if a player has played a a game before, if so choose another random games
+    This code works so long as the player has't played every game. We need to raise an HTTPException
+    When the COUNT(game_id) in games is equal to the max_id."""
+
+
+    con.close()
+    new_game = {
+        "user_id": user_id,
+        "game_id": game_id
+        }
+    return new_game
 
 @app.get("/stats/games/{unique_id}/")
 async def retrieve_player_stats(unique_id: uuid.UUID):
@@ -173,5 +229,4 @@ async def retrieve_top_streaks(db: sqlite3.Connection = Depends(get_db)):
     score_list = r.zrevrange(set_key, 0, -1, withscores = True)
     for tup in score_list:
         tup[0].decode("UTF-8")
-    # NOT SURE HOW YOU WOULD LIKE US TO OUTPUT THESE?????????????????????
     return {"TopStreaks": [{"username": tup[0], "streaks": tup[1]} for tup in score_list[:10]]}

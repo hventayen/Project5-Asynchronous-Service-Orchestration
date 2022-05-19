@@ -48,7 +48,6 @@ async def check_guess(answer_id: int, guess: str, db: sqlite3.Connection = Depen
     """Added a status variable to keep track of win or loss"""
     return {"letter colors" : [f"{letter}: {color_list[index]}" for index, letter in enumerate(guess)], "status" : False}
 
-
 @app.put("/games/")
 async def change_daily_word(game: Game, db: sqlite3.Connection = Depends(get_db)):
     # http://127.0.0.1:5100/games/
