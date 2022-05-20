@@ -88,7 +88,7 @@ async def add_game_played(game_id: int, unique_id: uuid.UUID, result: Result):
 @app.get("/stats/games/{username}")
 async def generate_game(username: str):
     """Initializes values for a new game"""
-    # Was added in order to get the user name and generate a game_id
+    """Was added in order to get the user name and generate a game_id"""
     sqlite3.register_converter('GUID', lambda b: uuid.UUID(bytes_le=b))
     sqlite3.register_adapter(uuid.UUID, lambda u: memoryview(u.bytes_le))
     con = sqlite3.connect("DB/Shards/user_profiles.db", detect_types=sqlite3.PARSE_DECLTYPES)
