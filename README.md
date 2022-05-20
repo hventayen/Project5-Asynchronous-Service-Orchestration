@@ -4,9 +4,12 @@
 ## Mohammad Qazi
 ## Kevin Sierras
 ### Databases (Executables located in DB/):
-Initialize database: execute create_stats_db.sh in the terminal
+Initialize database: execute create_words_db.py, create_answer_db.py, and create_stats_db.sh in the terminal
+
+Create shards folder: create empty folder named "Shards" in folder "DB"
 
 Create shards: execute create_shards.py in the terminal
+
 ### Starting services:
 #### Standalone:
 uvicorn m1:app --reload
@@ -16,34 +19,47 @@ uvicorn m2:app --reload
 uvicorn m3:app --reload
 
 uvicorn m4:app --reload
-#### Using Traefik:
-./traefik --configFile=traefik.toml
-foreman start -m 'word=1, game=1, stat=3'
-### Steps For Materialized Views Using Cron
-Step 1: make crontab from the terminal using this command
 
-crontab -e
+uvicorn m5:app --reload
 
-Step 2: press '2' to edit crontab within the terminal
+#### Using Microservice 5 in terminal:
+foreman start
 
-Step 3: insert this command at the end of the file
+### Steps For Testing Microservice 5:
+Step 1: Go to docs page for link given after executing microservice 5
 
-*/10 * * * * /usr/bin/python3 (insert path of project4 file here)/create_materialized_views.py
+ex: http://127.0.0.1:5400/docs
 
-Step 4: press 'enter' to install crontab in the /tmp/crontab directory
+Step 2: Insert a username registered on Microservice 3's streaks for first endpoint
 
-Step 5: execute services
+ex: ucohen
 
-foreman start -m 'stat=3, state=1'
+Step 3: Copy game_id and user_id from the JSON response of first endpoint
 
-Step 6: go to link
+ex: 
 
-http://127.0.0.1:9999/stats/m3/docs
+(game_id) 2068
 
-Step 7: change lines 16, 18, 19, 20 to switch the path with your absolute path for the databases
+(user_id) 123e4567-e89b-12d3-a456-426614174000
 
-Example:
+Step 4: Insert game_id and user_id with a 5 letter word guess for the game into second endpoint
 
-/home/(insert username here)/Project4-NOSQL/DB/Shards/stats1.db
+(game_id) 2068
 
-Step 8: test out microservice for leaderboards
+(user_id) 123e4567-e89b-12d3-a456-426614174000
+
+(guess) break
+
+Step 5: Give 5 more guesses with the same game_id and user_id with a 5 letter word guess to get win or loss
+
+ex:
+
+brine
+
+fling
+
+great
+
+trade
+
+learn
