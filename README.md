@@ -36,7 +36,11 @@ ex: ucohen
 
 Step 3: Copy game_id and user_id from the JSON response of first endpoint
 
+<<<<<<< HEAD
 ex:
+=======
+ex: 
+>>>>>>> b1ad4003ee1508a6c9647201ee9ccc1449c04403
 
 (game_id) 2068
 
