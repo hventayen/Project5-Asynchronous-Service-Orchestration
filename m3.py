@@ -196,7 +196,7 @@ async def retrieve_player_stats(unique_id: uuid.UUID):
     else:
         win_percentage = trunc(0.0)
     average_guesses = sum(guess_list) // 6
-    stat = Stats(currentStreak=current_streak, maxStreak=max_streak, guesses=Guesses(fail=0), winPercentage=win_percentage, gamesPlayed=games_played, gamesWon=games_won, averageGuesses=average_guesses)
+    stat = Stats(currentStreak=current_streak, maxStreak=max_streak, guesses=Guesses(fail=games_lost), winPercentage=win_percentage, gamesPlayed=games_played, gamesWon=games_won, averageGuesses=average_guesses)
     stat.guesses.guess1 = guess_list[0]
     stat.guesses.guess2 = guess_list[1]
     stat.guesses.guess3 = guess_list[2]
