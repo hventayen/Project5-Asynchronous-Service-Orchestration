@@ -76,7 +76,9 @@ async def guess_a_word(game_id: int, user_id: uuid.UUID, guess: str):
             if m3.status_code == httpx.codes.OK:
                 ret4 = httpx.get(f"http://127.0.0.1:5200/stats/games/{user_id}/")
                 if ret4.status_code == httpx.codes.OK:
-                    return ret4.json()
+                    ret4_dict = ret4.json()
+                    ret4_dict.update({"status" : m3.json()['status'], "remaining" : ret2.json()['guesses_left']})
+                    return ret4_dict
                 else:
                     return {"Error Code" : ret4.status_code, "detail" : ret4.json()['detail']}
             else:
@@ -90,7 +92,9 @@ async def guess_a_word(game_id: int, user_id: uuid.UUID, guess: str):
             if m3.status_code == httpx.codes.OK:
                 ret4 = httpx.get(f"http://127.0.0.1:5200/stats/games/{user_id}/")
                 if ret4.status_code == httpx.codes.OK:
-                    return ret4.json()
+                    ret4_dict = ret4.json()
+                    ret4_dict.update({"status" : m3.json()['status'], "remaining" : ret2.json()['guesses_left']})
+                    return ret4_dict
                 else:
                     return {"Error Code" : ret4.status_code, "detail" : ret4.json()['detail']}
             else:
