@@ -30,7 +30,6 @@ async def new_game(game_id: int, user_id: uuid.UUID):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Game already played"
         )
-    """REturn in progress instead of throwing an error"""
     r.lpush(f"{user_id} : {game_id} : guess_list", "", "", "", "", "", "")
     r.set(f"{user_id} : {game_id} : guesses_left", 6)
 

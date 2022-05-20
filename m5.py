@@ -30,19 +30,22 @@ async def start_new_game(username: str):
             return ret2.json()
         else:
             ret3 = httpx.get(f'http://127.0.0.1:5300/game/{game_id}?user_id={user_id}')
-            """TODO: See output 5 in instructions, right now we use grab game,
-            to grab an unfinished game. We also need to state the letter
-            classification of the most recent guess.
-            That is the code we need to add here, and return a dictionary which
-            combines ret3 and that last letter classification"""
+            if ret3.status_code == httpx.codes.OK:
+                last_word = ret3.json()['guess_list']
+                tmp_word = ""
+                for word in range(len(last_word)):
+                    if len(last_word[word]) > 0:
+                        tmp_word = last_word[word]
 
-
-            """TO make life simpler, to unite jsons together, here is a code you can use:
-            NOTE: variable names may change
-            my_dict = ret2.json()
-            my_dict.update({"letter_colors" : ret3.json()['letter colors']})
-            return my_dict
-            """
+                ret4 = httpx.get(f'http://127.0.0.1:5100/games/{game_id}?guess={tmp_word}')
+                if ret4.status_code == httpx.codes.OK:
+                    my_dict = ret3.json()
+                    my_dict.update({"letter_colors": ret4.json()['letter colors']})
+                    return my_dict
+                else:
+                    return {"Error Code" : ret4.status_code, "detail" : ret4.json()['detail']}
+            else:
+                return {"Error Code" : ret3.status_code, "detail" : ret3.json()['detail']}
     else:
         return {"Error Code" : ret1.status_code, "detail" : ret1.json()['detail']}
 
@@ -55,7 +58,7 @@ async def guess_a_word(game_id: int, user_id: uuid.UUID, guess: str):
         async with httpx.AsyncClient() as client:
             L = await asyncio.gather(
                 client.patch(f'http://127.0.0.1:5300/game/{game_id}?user_id={user_id}&user_word={guess}'),
-                client.get(f'http://127.0.0.1:5100/games/1?guess={guess}')
+                client.get(f'http://127.0.0.1:5100/games/{game_id}?guess={guess}')
             )
         for code in L:
             if code.status_code == httpx.codes.OK:
@@ -67,7 +70,7 @@ async def guess_a_word(game_id: int, user_id: uuid.UUID, guess: str):
         if ret2.json()['guesses_left'] == 0 and not ret3.json()['status']:
             m3 = httpx.post(f'http://127.0.0.1:5200/stats/games/{game_id}?unique_id={user_id}', json={
                        'status': False,
-                       'timestamp': date.today(),
+                       'timestamp': str(date.today()),
                        'number_of_guesses': ret2.json()['guesses_left']
                    })
             if m3.status_code == httpx.codes.OK:
@@ -77,7 +80,7 @@ async def guess_a_word(game_id: int, user_id: uuid.UUID, guess: str):
         elif ret3.json()['status']:
             m3 = httpx.post(f'http://127.0.0.1:5200/stats/games/{game_id}?unique_id={user_id}', json={
                         'status': True,
-                        'timestamp': date.today(),
+                        'timestamp': str(date.today()),
                         'number_of_guesses': ret2.json()['guesses_left']
                     })
             if m3.status_code == httpx.codes.OK:

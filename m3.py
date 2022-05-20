@@ -121,18 +121,18 @@ async def generate_game(username: str):
     else:
         con = sqlite3.connect("DB/Shards/stats3.db", detect_types=sqlite3.PARSE_DECLTYPES)
         db = con.cursor()
+    cur = db.execute("SELECT COUNT(game_id) FROM games WHERE unique_id = ?", [user_id])
+    total_games_played = cur.fetchall()[0][0]
+    if max_id == total_games_played:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="All games have been played"
+        )
     cur = db.execute("SELECT game_id, unique_id FROM games WHERE game_id = ? AND unique_id = ?", [game_id, user_id])
     looking_for = cur.fetchall()
     while looking_for:
         game_id = randint(min_id, max_id)
         cur = db.execute("SELECT game_id, unique_id FROM games WHERE game_id = ? AND unique_id = ?", [game_id, user_id])
         looking_for = cur.fetchall()
-    """You'll need to know SQL for this
-    TODO: This while loop, checks to see if a player has played a a game before, if so choose another random games
-    This code works so long as the player has't played every game. We need to raise an HTTPException
-    When the COUNT(game_id) in games is equal to the max_id."""
-
-
     con.close()
     new_game = {
         "user_id": user_id,
